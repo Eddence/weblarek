@@ -38,3 +38,21 @@ export interface IOrderDraft {
     phone: string;
     address: string;
 }
+
+export interface IGetProductsResponse {
+    total: number;
+    items: IProduct[];
+}
+
+export interface ICreateOrderRequest {
+    items: string[]; 
+    payment: TPayment;
+    email: string;
+    phone: string;
+    address: string;
+}
+
+export interface ICreateOrderResponse {
+    id: string;
+    total: number;
+}

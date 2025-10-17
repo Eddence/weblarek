@@ -3,6 +3,9 @@ import { apiProducts } from './utils/data';
 import Products from './components/Models/Products';
 import Cart from './components/Models/Cart';
 import Buyer from './components/Models/Buyer';
+import { Api } from './components/base/Api';
+import ShopApi from './components/Api/ShopApi';
+import { API_URL } from './utils/constants';
 
 // Instantiate models
 const productsModel = new Products();
@@ -43,3 +46,14 @@ console.log('Данные покупателя:', buyerModel.getData());
 console.log('Валидация покупателя (ok):', buyerModel.validate());
 buyerModel.setData({ email: '' });
 console.log('Валидация покупателя (ошибки):', buyerModel.validate());
+
+const apiClient = new Api(API_URL);
+const shopApi = new ShopApi(apiClient);
+shopApi.getProducts()
+    .then((items) => {
+        productsModel.setItems(items);
+        console.log('Каталог с сервера сохранён в модель:', productsModel.getItems());
+    })
+    .catch((err) => {
+        console.error('Ошибка загрузки каталога:', err);
+    });
