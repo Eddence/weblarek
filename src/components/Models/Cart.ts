@@ -30,7 +30,7 @@ export class Cart {
     }
 
     getCount(): number {
-        return this.items.reduce((sum, i) => sum += i.quantity, 0);
+        return this.items.reduce((sum, i) => sum + i.quantity, 0);
     }
 
     getTotal(): number | null {
