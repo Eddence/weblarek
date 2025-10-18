@@ -4,14 +4,12 @@ export class Cart {
     private items: ICartItem[] = [];
 
     getItems(): ICartItem[] {
-        return this.items.slice();
+        return this.items;
     }
 
     add(product: IProduct): void {
         const existing = this.items.find((i) => i.productId === product.id);
-        if (existing) {
-            existing.quantity += 1;
-        } else {
+        if (!existing) {
             this.items.push({
                 productId: product.id,
                 title: product.title,

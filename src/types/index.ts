@@ -30,13 +30,9 @@ export interface ICartItem {
     quantity: number;
 }
 
-export interface IOrderDraft {
+export interface IOrderDraft extends IBuyer {
     items: ICartItem[];
     total: number | null;
-    payment: TPayment;
-    email: string;
-    phone: string;
-    address: string;
 }
 
 export interface IGetProductsResponse {
@@ -44,13 +40,7 @@ export interface IGetProductsResponse {
     items: IProduct[];
 }
 
-export interface ICreateOrderRequest {
-    items: string[]; 
-    payment: TPayment;
-    email: string;
-    phone: string;
-    address: string;
-}
+export interface ICreateOrderRequest extends IOrderDraft {}
 
 export interface ICreateOrderResponse {
     id: string;
