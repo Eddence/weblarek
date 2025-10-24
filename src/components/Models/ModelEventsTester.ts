@@ -1,0 +1,178 @@
+import { EventEmitter } from '../base/Events';
+import { Products } from './Products';
+import { Cart } from './Cart';
+import { Buyer } from './Buyer';
+import { IProduct, IBuyer } from '../../types';
+
+export class ModelEventsTester {
+    private events: EventEmitter;
+    private products: Products;
+    private cart: Cart;
+    private buyer: Buyer;
+
+    constructor() {
+        this.events = new EventEmitter();
+        this.setupEventListeners();
+        this.initializeModels();
+    }
+
+    private initializeModels(): void {
+        this.products = new Products(this.events);
+        this.cart = new Cart(this.events);
+        this.buyer = new Buyer(this.events);
+    }
+
+    private setupEventListeners(): void {
+        this.events.on('products:items-changed', (data) => {
+            console.log('✓ Event: products:items-changed', data);
+        });
+
+        this.events.on('products:selected-changed', (data) => {
+            console.log('✓ Event: products:selected-changed', data);
+        });
+
+        this.events.on('cart:item-added', (data) => {
+            console.log('✓ Event: cart:item-added', data);
+        });
+
+        this.events.on('cart:item-removed', (data) => {
+            console.log('✓ Event: cart:item-removed', data);
+        });
+
+        this.events.on('cart:cleared', (data) => {
+            console.log('✓ Event: cart:cleared', data);
+        });
+
+        this.events.on('buyer:data-changed', (data) => {
+            console.log('✓ Event: buyer:data-changed', data);
+        });
+
+        this.events.on('buyer:cleared', (data) => {
+            console.log('✓ Event: buyer:cleared', data);
+        });
+    }
+
+    testProductsEvents(): void {
+        console.log('\n=== Testing Products Events ===');
+        
+        const testProducts: IProduct[] = [
+            {
+                id: '1',
+                title: 'Тестовый товар 1',
+                description: 'Описание товара 1',
+                image: 'test1.jpg',
+                category: 'софт-скил',
+                price: 1000
+            },
+            {
+                id: '2',
+                title: 'Тестовый товар 2',
+                description: 'Описание товара 2',
+                image: 'test2.jpg',
+                category: 'хард-скил',
+                price: 2000
+            }
+        ];
+
+        console.log('Setting products...');
+        this.products.setItems(testProducts);
+
+        console.log('Selecting product...');
+        this.products.setSelected(testProducts[0]);
+
+        console.log('Clearing selection...');
+        this.products.setSelected(null);
+    }
+
+    testCartEvents(): void {
+        console.log('\n=== Testing Cart Events ===');
+        
+        const testProduct: IProduct = {
+            id: '1',
+            title: 'Тестовый товар',
+            description: 'Описание товара',
+            image: 'test.jpg',
+            category: 'софт-скил',
+            price: 1000
+        };
+
+        console.log('Adding product to cart...');
+        this.cart.add(testProduct);
+
+        console.log('Adding same product again (should not emit event)...');
+        this.cart.add(testProduct);
+
+        console.log('Removing product from cart...');
+        this.cart.remove(testProduct.id);
+
+        console.log('Adding multiple products...');
+        this.cart.add(testProduct);
+        this.cart.add({
+            id: '2',
+            title: 'Другой товар',
+            description: 'Описание',
+            image: 'test2.jpg',
+            category: 'хард-скил',
+            price: 2000
+        });
+
+        console.log('Clearing cart...');
+        this.cart.clear();
+    }
+
+    testBuyerEvents(): void {
+        console.log('\n=== Testing Buyer Events ===');
+        
+        console.log('Setting payment method...');
+        this.buyer.setData({ payment: 'card' });
+
+        console.log('Setting email...');
+        this.buyer.setData({ email: 'test@example.com' });
+
+        console.log('Setting phone...');
+        this.buyer.setData({ phone: '+7 (999) 123-45-67' });
+
+        console.log('Setting address...');
+        this.buyer.setData({ address: 'Тестовый адрес' });
+
+        console.log('Setting multiple fields at once...');
+        this.buyer.setData({
+            payment: 'cash',
+            email: 'new@example.com',
+            phone: '+7 (888) 987-65-43',
+            address: 'Новый адрес'
+        });
+
+        console.log('Setting same data (should not emit event)...');
+        this.buyer.setData({
+            payment: 'cash',
+            email: 'new@example.com'
+        });
+
+        console.log('Clearing buyer data...');
+        this.buyer.clear();
+    }
+
+    runAllTests(): void {
+        console.log('Starting Model Events Tests...\n');
+        
+        this.testProductsEvents();
+        this.testCartEvents();
+        this.testBuyerEvents();
+        
+        console.log('\n=== All Model Events Tests Completed ===');
+        console.log('\nEvents that are generated by models:');
+        console.log('- products:items-changed - изменение списка товаров');
+        console.log('- products:selected-changed - изменение выбранного товара');
+        console.log('- cart:item-added - добавление товара в корзину');
+        console.log('- cart:item-removed - удаление товара из корзины');
+        console.log('- cart:cleared - очистка корзины');
+        console.log('- buyer:data-changed - изменение данных покупателя');
+        console.log('- buyer:cleared - очистка данных покупателя');
+    }
+}
+
+export function runModelEventsTests(): void {
+    const tester = new ModelEventsTester();
+    tester.runAllTests();
+}

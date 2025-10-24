@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Components Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .console-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тестирование View компонентов</h1>
+    
+    <div class="test-section">
+        <h2>Тесты компонентов</h2>
+        <button class="test-button" onclick="testHeaderView()">Тест HeaderView</button>
+        <button class="test-button" onclick="testGalleryView()">Тест GalleryView</button>
+        <button class="test-button" onclick="testModalView()">Тест ModalView</button>
+        <button class="test-button" onclick="testCardViews()">Тест Card Views</button>
+        <button class="test-button" onclick="testFormViews()">Тест Form Views</button>
+        <button class="test-button" onclick="testBasketAndSuccess()">Тест Basket & Success</button>
+        <button class="test-button" onclick="runAllTests()">Запустить все тесты</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Консоль вывода</h2>
+        <div id="console-output" class="console-output"></div>
+        <button class="test-button" onclick="clearConsole()">Очистить консоль</button>
+    </div>
+
+    <!-- Включаем основные шаблоны для тестирования -->
+    <template id="card-catalog">
+        <button class="gallery__item card">
+            <span class="card__category card__category_soft">софт-скил</span>
+            <h2 class="card__title">+1 час в сутках</h2>
+            <img class="card__image" src="./src/images/Subtract.svg" alt="" />
+            <span class="card__price">750 синапсов</span>
+        </button>
+    </template>
+
+    <template id="card-preview">
+        <div class="card card_full">
+            <img class="card__image" src="./src/images/Subtract.svg" alt="" />
+            <div class="card__column">
+                <span class="card__category card__category_other">другое</span>
+                <h2 class="card__title">Бэкенд-антистресс</h2>
+                <p class="card__text">Если планируете решать задачи в тренажёре, берите два.</p>
+                <div class="card__row">
+                    <button class="button card__button">В корзину</button>
+                    <span class="card__price">1000 синапсов</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="card-basket">
+        <li class="basket__item card card_compact">
+            <span class="basket__item-index">1</span>
+            <span class="card__title">Фреймворк куки судьбы</span>
+            <span class="card__price">2500 синапсов</span>
+            <button class="basket__item-delete card__button" aria-label="удалить"></button>
+        </li>
+    </template>
+
+    <template id="basket">
+        <div class="basket">
+            <h2 class="modal__title">Корзина</h2>
+            <ul class="basket__list"></ul>
+            <div class="modal__actions">
+                <button class="button basket__button">Оформить</button>
+                <span class="basket__price">0 синапсов</span>
+            </div>
+        </div>
+    </template>
+
+    <template id="order">
+        <form class="form" name="order">
+            <div class="order">
+                <div class="order__field">
+                    <h2 class="modal__title">Способ оплаты</h2>
+                    <div class="order__buttons">
+                        <button name="card" type="button" class="button button_alt">Онлайн</button>
+                        <button name="cash" type="button" class="button button_alt">При получении</button>
+                    </div>
+                </div>
+                <label class="order__field">
+                    <span class="form__label modal__title">Адрес доставки</span>
+                    <input name="address" class="form__input" type="text" placeholder="Введите адрес" />
+                </label>
+            </div>
+            <div class="modal__actions">
+                <button type="submit" disabled class="button order__button">Далее</button>
+                <span class="form__errors"></span>
+            </div>
+        </form>
+    </template>
+
+    <template id="contacts">
+        <form class="form" name="contacts">
+            <div class="order">
+                <label class="order__field">
+                    <span class="form__label modal__title">Email</span>
+                    <input name="email" class="form__input" type="text" placeholder="Введите Email" />
+                </label>
+                <label class="order__field">
+                    <span class="form__label modal__title">Телефон</span>
+                    <input name="phone" class="form__input" type="text" placeholder="+7 (" />
+                </label>
+            </div>
+            <div class="modal__actions">
+                <button type="submit" disabled class="button">Оплатить</button>
+                <span class="form__errors"></span>
+            </div>
+        </form>
+    </template>
+
+    <template id="success">
+        <div class="order-success">
+            <h2 class="order-success__title">Заказ оформлен</h2>
+            <p class="order-success__description">Списано 0 синапсов</p>
+            <button class="button order-success__close">За новыми покупками!</button>
+        </div>
+    </template>
+
+    <script type="module">
+        // Перехватываем console.log для отображения в интерфейсе
+        const originalLog = console.log;
+        const consoleOutput = document.getElementById('console-output');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleOutput.textContent += args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        // Импортируем тестовые функции
+        import { runViewTests } from './src/components/View/ViewTester.ts';
+
+        // Глобальные функции для тестирования
+        window.testHeaderView = function() {
+            console.log('=== Тест HeaderView ===');
+            // Здесь будет код тестирования HeaderView
+            console.log('✓ HeaderView тест выполнен');
+        };
+
+        window.testGalleryView = function() {
+            console.log('=== Тест GalleryView ===');
+            // Здесь будет код тестирования GalleryView
+            console.log('✓ GalleryView тест выполнен');
+        };
+
+        window.testModalView = function() {
+            console.log('=== Тест ModalView ===');
+            // Здесь будет код тестирования ModalView
+            console.log('✓ ModalView тест выполнен');
+        };
+
+        window.testCardViews = function() {
+            console.log('=== Тест Card Views ===');
+            // Здесь будет код тестирования карточек
+            console.log('✓ Card Views тест выполнен');
+        };
+
+        window.testFormViews = function() {
+            console.log('=== Тест Form Views ===');
+            // Здесь будет код тестирования форм
+            console.log('✓ Form Views тест выполнен');
+        };
+
+        window.testBasketAndSuccess = function() {
+            console.log('=== Тест Basket & Success ===');
+            // Здесь будет код тестирования корзины и успеха
+            console.log('✓ Basket & Success тест выполнен');
+        };
+
+        window.runAllTests = function() {
+            console.log('=== Запуск всех тестов ===');
+            runViewTests();
+        };
+
+        window.clearConsole = function() {
+            consoleOutput.textContent = '';
+        };
+
+        console.log('Тестовая страница загружена. Нажмите кнопки для тестирования компонентов.');
+    </script>
+</body>
+</html>
