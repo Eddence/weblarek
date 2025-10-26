@@ -1,69 +1,117 @@
-import { IBuyer, TPayment } from '../../types';
-import { EventEmitter } from '../base/Events';
+import { IBuyer, TPayment, IEvents } from '../../types';
 
 export class Buyer {
-    private payment: TPayment | null = null;
-    private email: string = '';
-    private phone: string = '';
-    private address: string = '';
-    private events: EventEmitter;
+    private _payment: TPayment | null = null;
+    private _address: string = '';
+    private _phone: string = '';
+    private _email: string = '';
 
-    constructor(events: EventEmitter) {
-        this.events = events;
+    constructor(private events: IEvents) {}
+
+    // Геттеры
+    get payment(): TPayment | null {
+        return this._payment;
     }
 
-    setData(data: Partial<IBuyer>): void {
-        let hasChanges = false;
-        
-        if (data.payment !== undefined && this.payment !== data.payment) {
-            this.payment = data.payment;
-            hasChanges = true;
-        }
-        if (data.email !== undefined && this.email !== data.email) {
-            this.email = data.email;
-            hasChanges = true;
-        }
-        if (data.phone !== undefined && this.phone !== data.phone) {
-            this.phone = data.phone;
-            hasChanges = true;
-        }
-        if (data.address !== undefined && this.address !== data.address) {
-            this.address = data.address;
-            hasChanges = true;
-        }
+    get address(): string {
+        return this._address;
+    }
 
-        if (hasChanges) {
-            this.events.emit('buyer:data-changed', { data: this.getData() });
-        }
+    get phone(): string {
+        return this._phone;
+    }
+
+    get email(): string {
+        return this._email;
+    }
+
+    setAllData(data: IBuyer): void {
+        this._payment = data.payment;
+        this._address = data.address;
+        this._phone = data.phone;
+        this._email = data.email;
+        this.events.emit('buyer:changed');
+    }
+
+    set payment(value: TPayment) {
+        this._payment = value;
+        this.events.emit('buyer:changed');
+    }
+
+    set address(value: string) {
+        this._address = value;
+        this.events.emit('buyer:changed');
+    }
+
+    set phone(value: string) {
+        this._phone = value;
+        this.events.emit('buyer:changed');
+    }
+
+    set email(value: string) {
+        this._email = value;
+        this.events.emit('buyer:changed');
     }
 
     getData(): IBuyer {
+        if (this._payment === null) {
+            throw new Error('Не выбран способ оплаты');
+        }
         return {
-            payment: (this.payment ?? 'card'),
-            email: this.email,
-            phone: this.phone,
-            address: this.address,
+            payment: this._payment,
+            address: this._address,
+            phone: this._phone,
+            email: this._email,
         };
     }
 
     clear(): void {
-        const clearedData = this.getData();
-        this.payment = null;
-        this.email = '';
-        this.phone = '';
-        this.address = '';
-        this.events.emit('buyer:cleared', { data: clearedData });
+        this._payment = null;
+        this._address = '';
+        this._phone = '';
+        this._email = '';
     }
 
-    validate(): Partial<Record<keyof IBuyer, string>> {
-        const errors: Partial<Record<keyof IBuyer, string>> = {};
-        if (!this.payment) errors.payment = 'Не выбран вид оплаты';
-        if (!this.email) errors.email = 'Укажите емэйл';
-        if (!this.phone) errors.phone = 'Укажите телефон';
-        if (!this.address) errors.address = 'Укажите адрес';
-        return errors;
+    private isValidEmail(email: string): boolean {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    }
+
+    private isValidPhone(phone: string): boolean {
+        return /^\+?[\d\s\-\(\)]{10,}$/.test(phone.trim());
+    }
+
+    validate() {
+        const errors: string[] = [];
+
+        if (!this._payment) {
+            errors.push('Способ оплаты не выбран');
+        }
+
+        if (!this._address.trim()) {
+            errors.push('Адрес не указан');
+        }
+
+        if (!this._phone.trim()) {
+            errors.push('Телефон не указан');
+        } else if (!this.isValidPhone(this._phone)) {
+            errors.push('Некорректный формат телефона');
+        }
+
+        if (!this._email.trim()) {
+            errors.push('Email не указан');
+        } else if (!this.isValidEmail(this._email)) {
+            errors.push('Некорректный формат email');
+        }
+
+        return {
+            isValid: errors.length === 0,
+            errors,
+            fields: {
+                payment: this._payment !== null,
+                address: this._address.trim() !== '',
+                email: this.isValidEmail(this._email),
+                phone: this.isValidPhone(this._phone)
+            }
+        };
     }
 }
-
-export default Buyer;
-

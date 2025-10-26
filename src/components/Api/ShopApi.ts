@@ -1,21 +1,21 @@
-import { IApi, ICreateOrderRequest, ICreateOrderResponse, IGetProductsResponse, IProduct } from '../../types';
+import { IApi } from '../../types';
+import { IProduct, IOrderRequest, IOrderResponse } from '../../types';
 
-export class ShopApi {
-    private api: IApi;
+export class LarekAPI {
+    protected api: IApi;
 
     constructor(api: IApi) {
         this.api = api;
     }
 
     async getProducts(): Promise<IProduct[]> {
-        const data = await this.api.get<IGetProductsResponse>(`/product/`);
-        return data.items;
+        console.log('LarekAPI.getProducts: запрос к /product');
+        const response = await this.api.get<{ items: IProduct[] }>('/product');
+        console.log('LarekAPI.getProducts: ответ получен, количество элементов:', response.items?.length || 0);
+        return response.items || [];
     }
 
-    createOrder(payload: ICreateOrderRequest): Promise<ICreateOrderResponse> {
-        return this.api.post<ICreateOrderResponse>(`/order/`, payload);
+    async sendOrder(order: IOrderRequest): Promise<IOrderResponse> {
+        return await this.api.post<IOrderResponse>('/order', order);
     }
 }
-
-export default ShopApi;
-

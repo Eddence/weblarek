@@ -15,13 +15,21 @@ export class Api {
     }
 
     protected handleResponse<T>(response: Response): Promise<T> {
-        if (response.ok) return response.json();
-        else return response.json()
-            .then(data => Promise.reject(data.error ?? response.statusText));
+        if (response.ok) {
+            return response.json();
+        } else {
+            console.error('Api.handleResponse: ошибка', response.status, response.statusText);
+            return response.text().then(text => {
+                console.error('Api.handleResponse: тело ответа', text);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            });
+        }
     }
 
     get<T extends object>(uri: string) {
-        return fetch(this.baseUrl + uri, {
+        const fullUrl = this.baseUrl + uri;
+        console.log('Api.get: запрос к', fullUrl);
+        return fetch(fullUrl, {
             ...this.options,
             method: 'GET'
         }).then(this.handleResponse<T>);
