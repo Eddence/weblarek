@@ -12,6 +12,7 @@ export class GalleryView extends Component<IProduct[]> {
     }
 
     render(data: Partial<IProduct[]>): HTMLElement {
+        console.log('GalleryView.render вызван с', data?.length || 0, 'товарами');
         if (data) {
             this.clearGallery();
             this.renderProducts(data);

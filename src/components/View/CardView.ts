@@ -1,7 +1,7 @@
 import { Component } from '../base/Component';
 import { EventEmitter } from '../base/Events';
 import { IProduct, ICartItem } from '../../types';
-import { categoryMap } from '../../utils/constants';
+import { categoryMap, CDN_URL } from '../../utils/constants';
 
 export abstract class CardView<T> extends Component<T> {
     protected categoryElement: HTMLElement;
@@ -50,7 +50,8 @@ export abstract class CardView<T> extends Component<T> {
 
     protected setImage(src: string, alt?: string): void {
         if (this.imageElement) {
-            this.imageElement.src = src;
+            const fullImageUrl = `${CDN_URL}${src}`;
+            this.imageElement.src = fullImageUrl;
             if (alt) {
                 this.imageElement.alt = alt;
             }

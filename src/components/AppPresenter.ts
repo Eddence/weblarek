@@ -1,5 +1,5 @@
-import { EventEmitter } from '../base/Events';
-import { Products, Cart, Buyer } from './Models';
+import { EventEmitter } from './base/Events.js';
+import { Products, Cart, Buyer } from './Models/index.js';
 import { 
     HeaderView,
     GalleryView,
@@ -8,8 +8,8 @@ import {
     createOrderFormView,
     createContactsFormView,
     createOrderSuccessView
-} from '../View';
-import { IProduct } from '../../types';
+} from './View/index.js';
+import { IProduct } from '../types/index.js';
 
 export class AppPresenter {
     private events: EventEmitter;
@@ -51,6 +51,7 @@ export class AppPresenter {
 
     private setupEventListeners(): void {
         this.events.on('products:items-changed', (data) => {
+            console.log('Событие products:items-changed получено с', data.items.length, 'товарами');
             this.galleryView.render(data.items);
         });
 
@@ -176,6 +177,7 @@ export class AppPresenter {
     }
 
     public loadProducts(products: IProduct[]): void {
+        console.log('AppPresenter.loadProducts вызван с', products.length, 'товарами');
         this.products.setItems(products);
     }
 }

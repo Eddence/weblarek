@@ -11,7 +11,9 @@ export class Products {
     }
 
     setItems(items: IProduct[]): void {
+        console.log('Products.setItems вызван с', items.length, 'товарами');
         this.products = Array.isArray(items) ? items.slice() : [];
+        console.log('Products эмитит событие products:items-changed');
         this.events.emit('products:items-changed', { items: this.products });
     }
 
