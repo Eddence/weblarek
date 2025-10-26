@@ -18,18 +18,14 @@ export class Api {
         if (response.ok) {
             return response.json();
         } else {
-            console.error('Api.handleResponse: ошибка', response.status, response.statusText);
             return response.text().then(text => {
-                console.error('Api.handleResponse: тело ответа', text);
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             });
         }
     }
 
     get<T extends object>(uri: string) {
-        const fullUrl = this.baseUrl + uri;
-        console.log('Api.get: запрос к', fullUrl);
-        return fetch(fullUrl, {
+        return fetch(this.baseUrl + uri, {
             ...this.options,
             method: 'GET'
         }).then(this.handleResponse<T>);

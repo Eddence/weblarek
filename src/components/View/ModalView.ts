@@ -33,12 +33,15 @@ export class ModalView extends Component<{}> {
         this._content.replaceChildren(content);
         this.toggleModal(true);
         document.addEventListener('keydown', this._handleEscape);
+        // Блокируем скролл основной страницы
+        document.body.style.overflow = 'hidden';
     }
 
     close() {
         this.toggleModal(false);
         document.removeEventListener('keydown', this._handleEscape);
-        // ОСТАВЛЕНО: событие для Escape и клика вне
+        // Восстанавливаем скролл основной страницы
+        document.body.style.overflow = '';
         this.events.emit('modal:close');
     }
 

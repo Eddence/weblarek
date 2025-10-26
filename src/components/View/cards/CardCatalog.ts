@@ -18,7 +18,6 @@ export class CardCatalog extends CardView {
 
     set inCart(value: boolean) {
         this._inCart = value;
-        // Можно добавить визуальную индикацию, если нужно
     }
 
     get inCart(): boolean {

@@ -11,9 +11,6 @@ import { ModalView } from './components/View/ModalView';
 import { AppPresenter } from './presenter/AppPresenter';
 import { Page } from './components/View/Page';
 
-console.log('API_URL:', API_URL);
-console.log('VITE_API_ORIGIN:', import.meta.env.VITE_API_ORIGIN);
-
 const events = new EventEmitter();
 const catalog = new ProductCatalog(events);
 const cart = new ShoppingCart(events);

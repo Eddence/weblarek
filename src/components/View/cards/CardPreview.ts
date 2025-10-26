@@ -23,8 +23,6 @@ export class CardPreview extends CardView {
             } else {
                 this.events.emit('card:add-to-cart', { id: this._id });
             }
-            // Убрано автоматическое закрытие модального окна
-            // this.events.emit('card:close');
         });
     }
 

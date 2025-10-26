@@ -30,6 +30,8 @@
 
   &__content {
     flex-grow: 1;
+    overflow-y: auto;
+    max-height: 80vh;
   }
 
   &__title {
