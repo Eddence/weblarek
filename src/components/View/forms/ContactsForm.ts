@@ -18,7 +18,6 @@ export class ContactsForm extends FormView<IBuyer> {
                 field: 'email',
                 value: this._email.value
             });
-            this.validateForm();
         });
 
         this._phone.addEventListener('input', () => {
@@ -26,24 +25,15 @@ export class ContactsForm extends FormView<IBuyer> {
                 field: 'phone',
                 value: this._phone.value
             });
-            this.validateForm();
         });
-    }
-
-    private validateForm(): void {
-        const emailValid = this._email.value.trim().length > 0;
-        const phoneValid = this._phone.value.trim().length > 0;
-        this.valid = emailValid && phoneValid;
     }
 
     set email(value: string) {
         this._email.value = value;
-        this.validateForm();
     }
 
     set phone(value: string) {
         this._phone.value = value;
-        this.validateForm();
     }
 
     set emailValid(valid: boolean) {
@@ -54,11 +44,10 @@ export class ContactsForm extends FormView<IBuyer> {
         this.toggleClass(this._phone, 'form__input_invalid', !valid);
     }
 
-    setValidation(errors: string[], fields: { email: boolean; phone: boolean }) {
-        this.errors = errors.join('<br>');
-        this.emailValid = fields.email;
-        this.phoneValid = fields.phone;
-        // Валидация кнопки теперь управляется validateForm()
-        this.validateForm();
+    setValidation(errors: Record<string, string>) {
+        this.errors = Object.values(errors).join('<br>');
+        this.emailValid = !errors['email'];
+        this.phoneValid = !errors['phone'];
+        this.valid = Object.keys(errors).length === 0;
     }
 }

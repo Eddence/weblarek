@@ -6,7 +6,7 @@ export class CardPreview extends CardView {
     protected _button: HTMLButtonElement;
     private _id: string = '';
     private _inCart: boolean = false;
-    private _productPrice: number | null = null;
+    private _isPriceless: boolean = false;
 
     constructor(container: HTMLElement, private events: IEvents) {
         super(container);
@@ -16,7 +16,7 @@ export class CardPreview extends CardView {
         this._button.addEventListener('click', (event) => {
             event.stopPropagation();
 
-            if (this._productPrice === null) return;
+            if (this._isPriceless) return;
 
             if (this._inCart) {
                 this.events.emit('card:remove-from-cart', { id: this._id });
@@ -44,7 +44,7 @@ export class CardPreview extends CardView {
     }
 
     set price(value: number | null) {
-        this._productPrice = value;
+        this._isPriceless = value === null;
         this.updateButton();
 
         if (value === null) {
@@ -55,7 +55,7 @@ export class CardPreview extends CardView {
     }
 
     private updateButton() {
-        if (this._productPrice === null) {
+        if (this._isPriceless) {
             this.setText(this._button, 'Недоступно');
             this.setDisabled(this._button, true);
         } else if (this._inCart) {

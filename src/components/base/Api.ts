@@ -18,7 +18,7 @@ export class Api {
         if (response.ok) {
             return response.json();
         } else {
-            return response.text().then(text => {
+            return response.text().then(() => {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             });
         }

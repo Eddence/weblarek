@@ -13,7 +13,7 @@ import { ContactsForm } from '../components/View/forms/ContactsForm';
 import { SuccessView } from '../components/View/SuccessView';
 import { ModalView } from '../components/View/ModalView';
 import { CDN_URL } from '../utils/constants';
-import { Page } from '../components/View/Page';
+import { HeaderView } from '../components/View/HeaderView';
 
 export class AppPresenter {
     private catalogCards: CardCatalog[] = [];
@@ -30,7 +30,7 @@ export class AppPresenter {
         private buyer: Buyer,
         private api: LarekAPI,
         private gallery: Gallery,
-        private page: Page,
+        private header: HeaderView,
         private modal: ModalView
     ) {
         this.init();
@@ -105,7 +105,7 @@ export class AppPresenter {
         const hasValidItems = total > 0;
         const isEmpty = items.length === 0;
 
-        this.page.counter = items.length;
+        this.header.counter = items.length;
 
         this.catalogCards.forEach(card => {
             const product = this.catalog.getProductById(card.element.dataset.id!);
@@ -138,32 +138,14 @@ export class AppPresenter {
     }
 
     private handleBuyerChanged() {
-        const validation = this.buyer.validate();
-
         if (this.currentOrderForm) {
-            const errors: string[] = [];
-            if (!validation.fields.payment) errors.push('Выберите способ оплаты');
-            if (!validation.fields.address) errors.push('Укажите адрес доставки');
-
-            this.currentOrderForm.setValidation(errors, {
-                payment: validation.fields.payment,
-                address: validation.fields.address
-            });
+            const validation = this.buyer.validateOrderForm();
+            this.currentOrderForm.setValidation(validation.errors);
         }
 
         if (this.currentContactsForm) {
-            const errors: string[] = [];
-            if (!validation.fields.email && this.buyer.email.trim()) {
-                errors.push('Некорректный формат email');
-            }
-            if (!validation.fields.phone && this.buyer.phone.trim()) {
-                errors.push('Некорректный формат телефона');
-            }
-
-            this.currentContactsForm.setValidation(errors, {
-                email: validation.fields.email,
-                phone: validation.fields.phone
-            });
+            const validation = this.buyer.validateContactsForm();
+            this.currentContactsForm.setValidation(validation.errors);
         }
     }
 
@@ -245,15 +227,8 @@ export class AppPresenter {
         });
 
         // Принудительная первоначальная валидация
-        const validation = this.buyer.validate();
-        const errors: string[] = [];
-        if (!validation.fields.payment) errors.push('Выберите способ оплаты');
-        if (!validation.fields.address) errors.push('Укажите адрес доставки');
-
-        orderForm.setValidation(errors, {
-            payment: validation.fields.payment,
-            address: validation.fields.address
-        });
+        const validation = this.buyer.validateOrderForm();
+        orderForm.setValidation(validation.errors);
 
         this.modal.open(orderForm.element);
     }
@@ -261,6 +236,11 @@ export class AppPresenter {
     private handlePaymentSelect(data: { payment: 'card' | 'cash' }) {
         this.buyer.payment = data.payment;
         this.events.emit('buyer:changed');
+        
+        // Обновляем визуальное состояние кнопок в форме
+        if (this.currentOrderForm) {
+            this.currentOrderForm.payment = data.payment;
+        }
     }
 
     private handleAddressChange(data: { address: string }) {
@@ -290,19 +270,8 @@ export class AppPresenter {
             phone: this.buyer.phone
         });
 
-        const validation = this.buyer.validate();
-        const errors: string[] = [];
-        if (!validation.fields.email && this.buyer.email.trim()) {
-            errors.push('Некорректный формат email');
-        }
-        if (!validation.fields.phone && this.buyer.phone.trim()) {
-            errors.push('Некорректный формат телефона');
-        }
-
-        contactsForm.setValidation(errors, {
-            email: validation.fields.email,
-            phone: validation.fields.phone
-        });
+        const validation = this.buyer.validateContactsForm();
+        contactsForm.setValidation(validation.errors);
 
         this.modal.open(contactsForm.element);
     }
@@ -313,7 +282,7 @@ export class AppPresenter {
             const sellableItems = this.cart.getItems().filter(item => item.price !== null);
             const orderData = {
                 ...buyerData,
-                total: sellableItems.reduce((sum, item) => sum + item.price!, 0),
+                total: this.cart.getTotalPrice(),
                 items: sellableItems.map(item => item.id)
             };
 
@@ -322,7 +291,7 @@ export class AppPresenter {
             this.cart.clear();
             this.buyer.clear();
 
-            this.page.counter = 0;
+            this.header.counter = 0;
 
             const successTemplate = document.getElementById('success') as HTMLTemplateElement;
             const successElement = successTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;

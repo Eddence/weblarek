@@ -7,6 +7,7 @@ export class CardBasket extends Component<IProduct> {
     protected _price: HTMLElement;
     protected _button: HTMLButtonElement;
     protected _index: HTMLElement;
+    private _id: string = '';
 
     constructor(container: HTMLElement, private events: IEvents) {
         super(container);
@@ -16,7 +17,7 @@ export class CardBasket extends Component<IProduct> {
         this._index = container.querySelector('.basket__item-index')!;
 
         this._button.addEventListener('click', () => {
-            this.events.emit('basket:remove', { id: container.dataset.id });
+            this.events.emit('basket:remove', { id: this._id });
         });
     }
 
@@ -37,6 +38,6 @@ export class CardBasket extends Component<IProduct> {
     }
 
     set id(value: string) {
-        this.container.dataset.id = value;
+        this._id = value;
     }
 }

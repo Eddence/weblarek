@@ -16,14 +16,10 @@ export class OrderForm extends FormView<IBuyer> {
 
         this._buttonCard.addEventListener('click', () => {
             this.events.emit('order:payment', { payment: 'card' });
-            this.toggleCard(true);
-            this.toggleCash(false);
         });
 
         this._buttonCash.addEventListener('click', () => {
             this.events.emit('order:payment', { payment: 'cash' });
-            this.toggleCard(false);
-            this.toggleCash(true);
         });
 
         this._address.addEventListener('input', () => {
@@ -57,10 +53,10 @@ export class OrderForm extends FormView<IBuyer> {
         }
     }
 
-    setValidation(errors: string[], fields: { payment: boolean; address: boolean }) {
-        this.errors = errors.join('<br>');
-        this.valid = errors.length === 0;
-        this.addressValid = fields.address;
+    setValidation(errors: Record<string, string>) {
+        this.errors = Object.values(errors).join('<br>');
+        this.valid = Object.keys(errors).length === 0;
+        this.addressValid = !errors['address'];
     }
 
     render(data?: Partial<IBuyer>) {

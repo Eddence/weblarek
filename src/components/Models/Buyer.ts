@@ -35,22 +35,18 @@ export class Buyer {
 
     set payment(value: TPayment) {
         this._payment = value;
-        this.events.emit('buyer:changed');
     }
 
     set address(value: string) {
         this._address = value;
-        this.events.emit('buyer:changed');
     }
 
     set phone(value: string) {
         this._phone = value;
-        this.events.emit('buyer:changed');
     }
 
     set email(value: string) {
         this._email = value;
-        this.events.emit('buyer:changed');
     }
 
     getData(): IBuyer {
@@ -81,37 +77,69 @@ export class Buyer {
     }
 
     validate() {
-        const errors: string[] = [];
+        const errors: Record<string, string> = {};
 
         if (!this._payment) {
-            errors.push('Способ оплаты не выбран');
+            errors['payment'] = 'Способ оплаты не выбран';
         }
 
         if (!this._address.trim()) {
-            errors.push('Адрес не указан');
+            errors['address'] = 'Адрес не указан';
         }
 
         if (!this._phone.trim()) {
-            errors.push('Телефон не указан');
+            errors['phone'] = 'Телефон не указан';
         } else if (!this.isValidPhone(this._phone)) {
-            errors.push('Некорректный формат телефона');
+            errors['phone'] = 'Некорректный формат телефона';
         }
 
         if (!this._email.trim()) {
-            errors.push('Email не указан');
+            errors['email'] = 'Email не указан';
         } else if (!this.isValidEmail(this._email)) {
-            errors.push('Некорректный формат email');
+            errors['email'] = 'Некорректный формат email';
         }
 
         return {
-            isValid: errors.length === 0,
-            errors,
-            fields: {
-                payment: this._payment !== null,
-                address: this._address.trim() !== '',
-                email: this.isValidEmail(this._email),
-                phone: this.isValidPhone(this._phone)
-            }
+            isValid: Object.keys(errors).length === 0,
+            errors
+        };
+    }
+
+    validateOrderForm() {
+        const errors: Record<string, string> = {};
+
+        if (!this._payment) {
+            errors['payment'] = 'Способ оплаты не выбран';
+        }
+
+        if (!this._address.trim()) {
+            errors['address'] = 'Адрес не указан';
+        }
+
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors
+        };
+    }
+
+    validateContactsForm() {
+        const errors: Record<string, string> = {};
+
+        if (!this._phone.trim()) {
+            errors['phone'] = 'Телефон не указан';
+        } else if (!this.isValidPhone(this._phone)) {
+            errors['phone'] = 'Некорректный формат телефона';
+        }
+
+        if (!this._email.trim()) {
+            errors['email'] = 'Email не указан';
+        } else if (!this.isValidEmail(this._email)) {
+            errors['email'] = 'Некорректный формат email';
+        }
+
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors
         };
     }
 }
