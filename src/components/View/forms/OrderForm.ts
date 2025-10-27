@@ -27,14 +27,6 @@ export class OrderForm extends FormView<IBuyer> {
         });
     }
 
-    toggleCard(state: boolean = true) {
-        this.toggleClass(this._buttonCard, 'button_alt-active', state);
-    }
-
-    toggleCash(state: boolean = true) {
-        this.toggleClass(this._buttonCash, 'button_alt-active', state);
-    }
-
     set address(value: string) {
         this._address.value = value;
     }
@@ -45,11 +37,11 @@ export class OrderForm extends FormView<IBuyer> {
 
     set payment(value: 'card' | 'cash') {
         if (value === 'card') {
-            this.toggleCard(true);
-            this.toggleCash(false);
+            this.toggleClass(this._buttonCard, 'button_alt-active', true);
+            this.toggleClass(this._buttonCash, 'button_alt-active', false);
         } else {
-            this.toggleCard(false);
-            this.toggleCash(true);
+            this.toggleClass(this._buttonCard, 'button_alt-active', false);
+            this.toggleClass(this._buttonCash, 'button_alt-active', true);
         }
     }
 

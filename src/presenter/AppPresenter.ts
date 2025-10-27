@@ -13,7 +13,7 @@ import { ContactsForm } from '../components/View/forms/ContactsForm';
 import { SuccessView } from '../components/View/SuccessView';
 import { ModalView } from '../components/View/ModalView';
 import { CDN_URL } from '../utils/constants';
-import { HeaderView } from '../components/View/HeaderView';
+import { BasketButtonView } from '../components/View/BasketButtonView';
 
 export class AppPresenter {
     private catalogCards: CardCatalog[] = [];
@@ -30,7 +30,7 @@ export class AppPresenter {
         private buyer: Buyer,
         private api: LarekAPI,
         private gallery: Gallery,
-        private header: HeaderView,
+        private basketButton: BasketButtonView,
         private modal: ModalView
     ) {
         this.init();
@@ -105,10 +105,10 @@ export class AppPresenter {
         const hasValidItems = total > 0;
         const isEmpty = items.length === 0;
 
-        this.header.counter = items.length;
+        this.basketButton.counter = items.length;
 
         this.catalogCards.forEach(card => {
-            const product = this.catalog.getProductById(card.element.dataset.id!);
+            const product = this.catalog.getProductById(card.id);
             if (product) {
                 card.inCart = this.cart.hasItem(product.id);
             }
@@ -153,7 +153,6 @@ export class AppPresenter {
         const product = this.catalog.getProductById(data.id);
         if (product) {
             this.catalog.setSelectedProduct(product);
-            this.events.emit('catalog:selected');
         }
     }
 
@@ -161,14 +160,12 @@ export class AppPresenter {
         const product = this.catalog.getSelectedProduct();
         if (product) {
             this.cart.addItem(product);
-            this.events.emit('cart:changed');
             this.modal.close();
         }
     }
 
     private handleRemoveFromBasket(data: { id: string }) {
         this.cart.removeItem(data.id);
-        this.events.emit('cart:changed');
     }
 
     private handleOpenBasket() {
@@ -270,6 +267,9 @@ export class AppPresenter {
             phone: this.buyer.phone
         });
 
+        // Устанавливаем начальное состояние кнопки
+        contactsForm.valid = false;
+
         const validation = this.buyer.validateContactsForm();
         contactsForm.setValidation(validation.errors);
 
@@ -279,11 +279,10 @@ export class AppPresenter {
     private async handleContactsSubmit() {
         try {
             const buyerData = this.buyer.getData();
-            const sellableItems = this.cart.getItems().filter(item => item.price !== null);
             const orderData = {
                 ...buyerData,
-                total: this.cart.getTotalPrice(),
-                items: sellableItems.map(item => item.id)
+                total: this.cart.getOrderTotal(),
+                items: this.cart.getOrderItems()
             };
 
             const response = await this.api.sendOrder(orderData);
@@ -291,7 +290,7 @@ export class AppPresenter {
             this.cart.clear();
             this.buyer.clear();
 
-            this.header.counter = 0;
+            this.basketButton.counter = 0;
 
             const successTemplate = document.getElementById('success') as HTMLTemplateElement;
             const successElement = successTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
@@ -314,7 +313,6 @@ export class AppPresenter {
         const product = this.catalog.getProductById(data.id);
         if (product && product.price !== null) {
             this.cart.addItem(product);
-            this.events.emit('cart:changed');
             // Обновляем состояние карточки, если она открыта
             if (this.currentCardPreview) {
                 this.currentCardPreview.inCart = true;
@@ -324,7 +322,6 @@ export class AppPresenter {
 
     private handleRemoveFromCart(data: { id: string }) {
         this.cart.removeItem(data.id);
-        this.events.emit('cart:changed');
         // Обновляем состояние карточки, если она открыта
         if (this.currentCardPreview) {
             this.currentCardPreview.inCart = false;

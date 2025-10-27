@@ -33,6 +33,16 @@ export class ShoppingCart {
             .reduce((sum, item) => sum + (item.price as number), 0);
     }
 
+    getOrderTotal(): number {
+        return this.getTotalPrice();
+    }
+
+    getOrderItems(): string[] {
+        return this._items
+            .filter(item => item.price !== null)
+            .map(item => item.id);
+    }
+
     getItemCount(): number {
         return this._items.length;
     }

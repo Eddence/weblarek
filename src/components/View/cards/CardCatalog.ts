@@ -3,17 +3,22 @@ import { IEvents } from '../../../types';
 
 export class CardCatalog extends CardView {
     private _inCart: boolean = false;
+    private _id: string = '';
 
     constructor(container: HTMLElement, private events: IEvents) {
         super(container);
 
         container.addEventListener('click', () => {
-            this.events.emit('card:select', { id: container.dataset.id });
+            this.events.emit('card:select', { id: this._id });
         });
     }
 
     set id(value: string) {
-        this.container.dataset.id = value;
+        this._id = value;
+    }
+
+    get id(): string {
+        return this._id;
     }
 
     set inCart(value: boolean) {

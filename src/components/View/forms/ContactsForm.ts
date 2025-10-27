@@ -10,9 +10,6 @@ export class ContactsForm extends FormView<IBuyer> {
         this._email = container.querySelector('.form__input[name="email"]')!;
         this._phone = container.querySelector('.form__input[name="phone"]')!;
 
-        // Изначально кнопка неактивна
-        this.valid = false;
-
         this._email.addEventListener('input', () => {
             this.events.emit('contacts:change', {
                 field: 'email',

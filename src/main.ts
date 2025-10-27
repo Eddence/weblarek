@@ -10,7 +10,7 @@ import { Gallery } from './components/View/Gallery';
 import { ModalView } from './components/View/ModalView';
 import { AppPresenter } from './presenter/AppPresenter';
 import { Page } from './components/View/Page';
-import { HeaderView } from './components/View/HeaderView';
+import { BasketButtonView } from './components/View/BasketButtonView';
 
 const events = new EventEmitter();
 const catalog = new ProductCatalog(events);
@@ -22,8 +22,8 @@ const larekApi = new LarekAPI(api);
 const pageContainer = document.querySelector('.page') as HTMLElement;
 const page = new Page(pageContainer);
 const gallery = new Gallery(page.gallery);
-const headerContainer = document.querySelector('.header') as HTMLElement;
-const header = new HeaderView(headerContainer, events);
+const basketButtonContainer = document.querySelector('.header') as HTMLElement;
+const basketButton = new BasketButtonView(basketButtonContainer, events);
 
 const modalContainer = document.getElementById('modal-container') as HTMLElement;
 const modal = new ModalView(modalContainer, events);
@@ -35,7 +35,7 @@ new AppPresenter(
     buyer,
     larekApi,
     gallery,
-    header,
+    basketButton,
     modal
 );
 
